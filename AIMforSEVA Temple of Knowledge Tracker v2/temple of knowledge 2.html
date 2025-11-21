@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temple of Knowledge</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+        }
+        
+        #animation-container {
+            width: 100vw;
+            height: 100vh;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="animation-container"></div>
+
+    <script>
+        // CONFIGURATION
+        const TOTAL_STATES = 23; // States 0-22 (State 0 is initial, States 1-22 are animation)
+        const ANIMATION_PATH = './temple of knowledge 2.json';
+        
+        // Frame ranges for each state (210 total frames at 100 fps = 2.1s)
+        // State 0: Initial frame (stays at frame 0)
+        // States 1-21: 10 frames each (frames 1-210)
+        const STATE_FRAMES = [
+            [0, 0],         // State 0 (initial, stays at frame 0)
+            [1, 10],        // State 1 (10 frames, 0.1s)
+            [11, 20],       // State 2 (10 frames, 0.1s)
+            [21, 30],       // State 3 (10 frames, 0.1s)
+            [31, 40],       // State 4 (10 frames, 0.1s)
+            [41, 50],       // State 5 (10 frames, 0.1s)
+            [51, 60],       // State 6 (10 frames, 0.1s)
+            [61, 70],       // State 7 (10 frames, 0.1s)
+            [71, 80],       // State 8 (10 frames, 0.1s)
+            [81, 90],       // State 9 (10 frames, 0.1s)
+            [91, 100],      // State 10 (10 frames, 0.1s)
+            [101, 110],     // State 11 (10 frames, 0.1s)
+            [111, 120],     // State 12 (10 frames, 0.1s)
+            [121, 130],     // State 13 (10 frames, 0.1s)
+            [131, 140],     // State 14 (10 frames, 0.1s)
+            [141, 150],     // State 15 (10 frames, 0.1s)
+            [151, 160],     // State 16 (10 frames, 0.1s)
+            [161, 170],     // State 17 (10 frames, 0.1s)
+            [171, 180],     // State 18 (10 frames, 0.1s)
+            [181, 190],     // State 19 (10 frames, 0.1s)
+            [191, 200],     // State 20 (10 frames, 0.1s)
+            [201, 210],      // State 21 (10 frames, 0.1s) 
+            [211, 220]       // State 22 (10 frames, 0.1s)
+        ];
+
+        // Initialize variables
+        let currentState = 0;
+        let animation;
+        let isTransitioning = false;
+
+        // Load the animation
+        animation = lottie.loadAnimation({
+            container: document.getElementById('animation-container'),
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: ANIMATION_PATH
+        });
+
+        // Wait for animation to load
+        animation.addEventListener('DOMLoaded', function() {
+            // Go to frame 0 and stop (don't play)
+            animation.goToAndStop(0, true);
+        });
+
+        // Handle click events
+        document.getElementById('animation-container').addEventListener('click', function() {
+            advanceAnimation();
+        });
+
+        // Handle keyboard events
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault(); // Prevent page scroll on spacebar
+                advanceAnimation();
+            }
+            // Handle left arrow or backspace to go back
+            else if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft' || e.code === 'Backspace' || e.key === 'Backspace') {
+                e.preventDefault(); // Prevent browser back navigation on backspace
+                goToPreviousState();
+            }
+        });
+
+        function advanceAnimation() {
+            if (isTransitioning) return;
+            
+            // If we're at the final state (21), restart from beginning
+            if (currentState >= TOTAL_STATES - 1) {
+                currentState = 0;
+                playState(currentState);
+                return;
+            }
+            
+            // Move to next state
+            currentState++;
+            playState(currentState);
+        }
+
+        function goToPreviousState() {
+            if (isTransitioning) return;
+            
+            // If we're at the first state, do nothing
+            if (currentState <= 0) return;
+            
+            // Move to previous state
+            currentState--;
+            playState(currentState);
+        }
+
+        function playState(stateIndex) {
+            isTransitioning = true;
+            
+            const frames = STATE_FRAMES[stateIndex];
+            
+            // State 0 is static - just go to frame 0 and stop
+            if (stateIndex === 0) {
+                animation.loop = false;
+                animation.goToAndStop(0, true);
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 100);
+                return;
+            }
+            
+            // All other states play once without looping
+            animation.loop = false;
+            animation.playSegments([frames[0], frames[1]], true);
+            
+            // Reset transition lock after animation completes
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 500);
+        }
+    </script>
+</body>
+</html>

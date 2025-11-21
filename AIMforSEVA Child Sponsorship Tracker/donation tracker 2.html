@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIMforSEVA Child Sponsorship Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+        }
+        
+        #animation-container {
+            width: 100vw;
+            height: 100vh;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="animation-container"></div>
+
+    <script>
+        // CONFIGURATION
+        const TOTAL_STATES = 21;
+        const ANIMATION_PATH = './donationtracker2.json';
+        
+        // Frame ranges for each state (840 total frames, 40 frames per state)
+        const STATE_FRAMES = [
+            [0, 39],        // State 1
+            [40, 79],       // State 2
+            [80, 119],      // State 3
+            [120, 159],     // State 4
+            [160, 199],     // State 5
+            [200, 239],     // State 6
+            [240, 279],     // State 7
+            [280, 319],     // State 8
+            [320, 359],     // State 9
+            [360, 399],     // State 10
+            [400, 439],     // State 11
+            [440, 479],     // State 12
+            [480, 519],     // State 13
+            [520, 559],     // State 14
+            [560, 599],     // State 15
+            [600, 639],     // State 16
+            [640, 679],     // State 17
+            [680, 719],     // State 18
+            [720, 759],     // State 19
+            [760, 799],     // State 20
+            [800, 839]      // State 21 (final, loops until clicked to restart)
+        ];
+
+        // Initialize variables
+        let currentState = 0;
+        let animation;
+        let isTransitioning = false;
+
+        // Load the animation
+        animation = lottie.loadAnimation({
+            container: document.getElementById('animation-container'),
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: ANIMATION_PATH
+        });
+
+        // Wait for animation to load
+        animation.addEventListener('DOMLoaded', function() {
+            // Play the first state
+            playState(0);
+        });
+
+        // Handle click events
+        document.getElementById('animation-container').addEventListener('click', function() {
+            advanceAnimation();
+        });
+
+        // Handle keyboard events
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault(); // Prevent page scroll on spacebar
+                advanceAnimation();
+            }
+            // Handle left arrow or backspace to go back
+            else if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft' || e.code === 'Backspace' || e.key === 'Backspace') {
+                e.preventDefault(); // Prevent browser back navigation on backspace
+                goToPreviousState();
+            }
+        });
+
+        function advanceAnimation() {
+            if (isTransitioning) return;
+            
+            // If we're at the final state (21), restart from beginning
+            if (currentState >= TOTAL_STATES - 1) {
+                currentState = 0;
+                playState(currentState);
+                return;
+            }
+            
+            // Move to next state
+            currentState++;
+            playState(currentState);
+        }
+
+        function goToPreviousState() {
+            if (isTransitioning) return;
+            
+            // If we're at the first state, do nothing
+            if (currentState <= 0) return;
+            
+            // Move to previous state
+            currentState--;
+            playState(currentState);
+        }
+
+        function playState(stateIndex) {
+            isTransitioning = true;
+            
+            const frames = STATE_FRAMES[stateIndex];
+            
+            // If this is the final state, loop it (clicking will restart)
+            if (stateIndex === TOTAL_STATES - 1) {
+                animation.loop = true;
+                animation.playSegments([frames[0], frames[1]], true);
+            } else {
+                // Play once and stop
+                animation.loop = false;
+                animation.playSegments([frames[0], frames[1]], true);
+            }
+            
+            // Reset transition lock after animation completes
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
